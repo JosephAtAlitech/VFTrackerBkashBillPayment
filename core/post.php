@@ -1,11 +1,13 @@
-<?php 
+<?php
 
-class Post{
+class Post
+{
 
     //db stuff
     private $conn;
-    private $table = 'tbl_name';
-    
+    public $db;
+    private $table = 'api_user_login';
+
     //post properties
     public $id;
     public $name;
@@ -14,11 +16,12 @@ class Post{
     {
         $this->conn = $db;
     }
-    public function read(){
+
+    public function read()
+    {
         //create query
-        $query = 'SELECT * from '.$this->table .'  
-                  order by id desc';
-    
+        $query = 'SELECT * from ' . $this->table . 'order by id desc';
+
         //prepare statement
         $stmt = $this->conn->prepare($query);
         //execute query
@@ -27,4 +30,19 @@ class Post{
         return $stmt;
     }
 
+    public function read_single()
+    {
+        $query = 'SELECT username, password from ' . $this->table . '  
+        where id = ? LIMIT 1';
+        $stmt = $this->conn->prepare($query);
+        //binding param
+        $stmt->bindParam(1, $this->id);
+        //execute query
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->name = $row['name'];
+        
+    }
 }
