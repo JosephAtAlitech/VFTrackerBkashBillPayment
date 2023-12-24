@@ -14,7 +14,7 @@ $post->read_single();
 
 $post_arr = array(
     'id' => $post->id,
-    'name' => $post->name
+    'username' => $post->name
 );
 
 //make a json

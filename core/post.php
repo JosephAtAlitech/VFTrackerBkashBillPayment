@@ -20,7 +20,7 @@ class Post
     public function read()
     {
         //create query
-        $query = 'SELECT * from ' . $this->table . 'order by id desc';
+        $query = 'SELECT * from ' . $this->table . 'order by id DESC';
 
         //prepare statement
         $stmt = $this->conn->prepare($query);
@@ -42,7 +42,14 @@ class Post
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->name = $row['name'];
+        $this->name = $row['username'];
+        
+    }
+    public function insert_bill()
+    {
+        $sql = "INSERT INTO tbl_paymentvoucher (paymentDate, amount, tbl_partyId) VALUES (?,?,?)";
+        $stmt= $this->conn->prepare($sql);
+        $stmt->execute([$paymentDate, $amount, $party]);
         
     }
 }
