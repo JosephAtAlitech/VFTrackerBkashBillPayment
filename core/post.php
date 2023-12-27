@@ -5,12 +5,29 @@ class Post
 
     //db stuff
     private $conn;
-    public $db;
     private $table = 'api_user_login';
+    private $tableTarty = 'tbl_party';
 
     //post properties
     public $id;
+    public $username;
+    public $password;
+    public $msg;
+
+    //post property for custpmer
+    public $CustomerNo;
     public $name;
+    public $email;
+    public $creditLimit; 
+    public $address;
+
+    // post properties for payment voucher
+
+    public $paymentDate;
+    public $Amount;
+    public $partyId;
+    public $UserMobileNumber;
+
 
     public function __construct($db)
     {
@@ -33,23 +50,56 @@ class Post
     public function read_single()
     {
         $query = 'SELECT username, password from ' . $this->table . '  
-        where id = ? LIMIT 1';
+        where username = :username and  password = :password LIMIT 1';
         $stmt = $this->conn->prepare($query);
         //binding param
-        $stmt->bindParam(1, $this->id);
+        $stmt->bindParam(':username', $this->username);
+        $stmt->bindParam(':password', $this->password);
+        //execute query
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        //if we found the user
+        if ($row != '') {
+            return $this->msg = 'success';
+        } else {
+            return  $this->msg = 'not found';
+        }
+    }
+
+    public function get_customer(){
+        $query = 'SELECT * '.$this->tableTarty.'
+        where partyPhone = :phone LIMIT 1';
+        $stmt = $this->conn->prepare($query);
+        //binding param
+        $stmt->bindParam(':phone', $this->CustomerNo);
+    
         //execute query
         $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->name = $row['username'];
-        
+        $this->name = $row['partyName'];
+        $this->email = $row['partyEmail'];
+        $this->address = $row['partyAddress'];
     }
     public function insert_bill()
     {
-        $sql = "INSERT INTO tbl_paymentvoucher (paymentDate, amount, tbl_partyId) VALUES (?,?,?)";
-        $stmt= $this->conn->prepare($sql);
-        $stmt->execute([$paymentDate, $amount, $party]);
-        
+        $sql = "INSERT INTO tbl_paymentvoucher (paymentDate, amount, tbl_partyId) VALUES (:paymentDate,:amount,:tbl_partyId)";
+        $stmt = $this->conn->prepare($sql);
+
+        $this->paymentDate = htmlspecialchars(strip_tags($this->paymentDate));
+        $this->Amount = htmlspecialchars(strip_tags($this->Amount));
+        $this->partyId = htmlspecialchars(strip_tags($this->partyId));
+
+
+        $stmt->bindParam(':paymentDate', $this->CustomerNo);
+        $stmt->bindParam(':amount', $this->Amount);
+        $stmt->bindParam(':partyId', $this->partyId);
+
+        if($stmt->execute()){
+            return true;
+        }
+
     }
 }
