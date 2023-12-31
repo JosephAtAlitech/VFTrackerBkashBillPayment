@@ -19,20 +19,16 @@ $post->authentication();
 
 if($post->msg == 'Successful'){
     $post->get_customer();
-    if($get_cust == "success_getCustomer"){
-        $post_arr = array(
-            'CustomerNo'   => $post->customerNo,
-            'ConsumerName' => $post->name,
-            'QueryTime'    => date('Y:m:d h:i:s'),
-            'Amount'       => $post->getOptionalAmount,
-            'ErrorCode'    => "200",
-            'ErrorMsg'     => 'Successful'
-        );
-        print_r(json_encode($post_arr));
-    }else{
-        $errorMessage->notFoundError();
-    }
-
+    
+    $post_arr = array(
+        'CustomerNo'   => $post->customerNo,
+        'ConsumerName' => $post->name,
+        'QueryTime'    => date('Y:m:d h:i:s'),
+        'Amount'       => $post->getOptionalAmount,
+        'ErrorCode'    => "200",
+        'ErrorMsg'     => 'Successful'
+    );
+    print_r(json_encode($post_arr));
 }else{
     $errorMessage->authenticationError();
 }

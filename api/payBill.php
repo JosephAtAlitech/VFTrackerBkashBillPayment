@@ -36,10 +36,17 @@ if ($post->msg == 'Successful') {
     $get_cust = $post->get_customer();
     // echo $post->id;
     // return;
-    if($get_cust == "success_getCustomer"){
+    if($post->msg == "success_getCustomer"){
         if ($post->payBill()) {
-
-            $errorMessage->successResponse();
+            $post_item = array(
+                'TotalAmount'   => $totalAmount += $row['amount'],
+                'TrxId'         => $row['bkash_trxId'],
+                'RefNumber'     => $post->bkash_RefNumber,
+                'CustomMessage' => "",
+                'ErrorCode'     => "200",
+                'ErrorMsg'      => "Successful"
+            );
+            array_push($post_arr, $post_item);;
     
         } else {
             $response = array(

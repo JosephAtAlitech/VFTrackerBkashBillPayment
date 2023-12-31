@@ -28,9 +28,10 @@ if ($post->msg == 'Successful') {
     if ($num > 0) {
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $post_item = array(
+                'ConsumerName' => $post->name,
                 'TotalAmount'   => $totalAmount += $row['amount'],
                 'TrxId'         => $row['bkash_trxId'],
-                'RefNumber'     => '',
+                'RefNumber'     => $row['bkash_RefNumber'],
                 'CustomMessage' => "",
                 'ErrorCode'     => "200",
                 'ErrorMsg'      => "Successful"
