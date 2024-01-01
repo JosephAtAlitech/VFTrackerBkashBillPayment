@@ -22,7 +22,6 @@ class Post
     public $address;
 
     // post properties for payment voucher
-
     public $CustomerNo;
     public $paymentDate;
     public $Amount;
@@ -34,56 +33,60 @@ class Post
     public $TrxId;
     public $bkash_RefNumber;
 
-
     public function __construct($db)
     {
         $this->conn = $db;
         $timezone = 'Asia/Dhaka';
-	    date_default_timezone_set($timezone);
+        date_default_timezone_set($timezone);
     }
 
     public function authentication()
     {
         $query = 'SELECT username, password from ' . $this->table . '  
-         where username = :username and  password = :password  LIMIT 1';
+         where username = :username LIMIT 1';
 
         $stmt = $this->conn->prepare($query);
         //binding param
         $stmt->bindParam(':username', $this->username);
-        $stmt->bindParam(':password', $this->password);
         //execute query
         $stmt->execute();
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        //return $this->msg = print_r($row['CustomerNo']);
-        //if we found the user
+        $pass = trim($this->password);
+
         if ($row != '') {
-            // return $row;
-            return $this->msg = 'Successful';
+            if (password_verify($pass , $row['password'])) {
+                return $this->msg = 'Successful';
+            } else {
+                return $this->msg = 'not found';
+            }
         } else {
-            return  $this->msg = 'not found';
+            return $this->msg = 'not found';
         }
     }
 
     public function get_customer()
     {
         $query = 'SELECT * from ' . $this->tableTarty . ' 
-          where partyPhone = :phone LIMIT 1';
+          where partyPhone = :phone or partyPhone = :code LIMIT 1';
         $stmt = $this->conn->prepare($query);
         //binding param
         $stmt->bindParam(':phone', $this->customerNo);
+        $stmt->bindParam(':code', $this->customerNo);
 
         //execute query
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $this->id = $row['id'];
-            $this->name = $row['partyName'];
-            $this->email = $row['partyEmail'];
-            $this->address = $row['partyAddress'];
-            $this->msg = 'success_getCustomer';
+            if ($row != '') {
+                $this->id = $row['id'];
+                $this->name = $row['partyName'];
+                $this->email = $row['partyEmail'];
+                $this->address = $row['partyAddress'];
+                $this->msg = 'success_getCustomer';
+            } else {
+                $this->msg = 'not_found';
+            }
         }
-
-      
     }
     public function payBill()
     {
@@ -91,26 +94,30 @@ class Post
         $query = 'SELECT id from ' . $this->tableTarty . ' where partyPhone LIKE  :phone LIMIT 1';
         $stmt = $this->conn->prepare($query);
         //binding param
-        $customerNo = '%'.$this->customerNo.'%';
-        $stmt->bindParam(':phone',  $customerNo , PDO::PARAM_STR);
+        $customerNo = '%' . $this->customerNo . '%';
+        $stmt->bindParam(':phone',  $customerNo, PDO::PARAM_STR);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $this->partyId = $row['id'];
-        
-        $voucherNo= '';
+        if ($row != "") {
+            $this->partyId = $row['id'];
+        } else {
+            return false;
+        }
 
-        $sql = 'SELECT LPAD(IFNULL(max(voucherNo),0)+1, 6, 0) as voucherCode, LPAD(IFNULL(max(voucherNo),0)+2, 6, 0) as voucherReceiveCode FROM tbl_paymentVoucher WHERE tbl_partyId='.$row['id'].' AND customerType = "Party"';
+        $voucherNo = '';
+
+        $sql = 'SELECT LPAD(IFNULL(max(voucherNo),0)+1, 6, 0) as voucherCode, LPAD(IFNULL(max(voucherNo),0)+2, 6, 0) as voucherReceiveCode FROM tbl_paymentVoucher WHERE tbl_partyId=' . $row['id'] . ' AND customerType = "Party"';
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
 
         while ($prow = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $voucherNo = $prow['voucherCode'];
         }
-        
+
         if ($voucherNo == "") {
             $voucherNo = "000001";
         }
-        
+
         $sql = "INSERT INTO tbl_paymentvoucher (paymentDate, amount, tbl_partyId, paymentMethod,bkash_trxId,voucherType,entryDate,voucherNo,remarks,receivedType,bkash_RefNumber) VALUES (:paymentDate,:amount,:partyId,:payMethod,:bkash_trxId,:voucherType,:entryDate,:voucherNo,:remarks,'MMB',:bkash_RefNumber)"; //voucherType
         $stmt = $this->conn->prepare($sql);
 
@@ -121,21 +128,18 @@ class Post
 
         $today = date('Y:m:d h:i:s');
         $voucherType = "PartySale";
-        $this->bkash_RefNumber = $this->partyId.$voucherNo;
-        $remarks = 'Bkash Bill Pay For TranxId : '.$this->TrxId.' and Voucher No :'.$voucherNo;
+        $this->bkash_RefNumber = $this->partyId . $voucherNo;
+        $remarks = 'Bkash api Bill Pay For TranxId : ' . $this->TrxId . ' and Voucher No :' . $voucherNo;
         $stmt->bindParam(':paymentDate', $this->paymentDate);
         $stmt->bindParam(':amount', $this->Amount);
         $stmt->bindParam(':partyId', $this->partyId);
         $stmt->bindParam(':payMethod', $this->payMethod);
         $stmt->bindParam(':bkash_trxId', $this->TrxId);
-        $stmt->bindParam(':entryDate', $today , PDO::PARAM_STR);
+        $stmt->bindParam(':entryDate', $today, PDO::PARAM_STR);
         $stmt->bindParam(':voucherType',  $voucherType, PDO::PARAM_STR);
         $stmt->bindParam(':voucherNo',  $voucherNo, PDO::PARAM_STR);
         $stmt->bindParam(':remarks',  $remarks, PDO::PARAM_STR);
         $stmt->bindParam(':bkash_RefNumber',  $this->bkash_RefNumber, PDO::PARAM_STR);
-
-
-
 
         if ($stmt->execute()) {
             return true;

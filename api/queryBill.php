@@ -1,6 +1,6 @@
 <?php
 //headers
-header('Allow-Control-Allow-Origin: *'); 
+header('Allow-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
 //initializing our api
@@ -17,22 +17,23 @@ $post->getOptionalAmount  = isset($_POST['Amount']) ? $_POST['Amount'] : '';
 
 $post->authentication();
 
-if($post->msg == 'Successful'){
+if ($post->msg == 'Successful') {
     $post->get_customer();
-    
-    $post_arr = array(
-        'CustomerNo'   => $post->customerNo,
-        'ConsumerName' => $post->name,
-        'QueryTime'    => date('Y:m:d h:i:s'),
-        'Amount'       => $post->getOptionalAmount,
-        'ErrorCode'    => "200",
-        'ErrorMsg'     => 'Successful'
-    );
-    print_r(json_encode($post_arr));
-}else{
+    if ($post->msg == "success_getCustomer") {
+        $post_arr = array(
+            'CustomerNo'   => $post->customerNo,
+            'ConsumerName' => $post->name,
+            'QueryTime'    => date('Y:m:d h:i:s'),
+            'Amount'       => $post->getOptionalAmount,
+            'ErrorCode'    => "200",
+            'ErrorMsg'     => 'Successful'
+        );
+        print_r(json_encode($post_arr));
+    } else {
+        $errorMessage->notFoundError();
+    }
+} else {
     $errorMessage->authenticationError();
 }
 
 //make a json
-
-?>

@@ -34,8 +34,7 @@ $post->authentication();
 
 if ($post->msg == 'Successful') {
     $get_cust = $post->get_customer();
-    // echo $post->id;
-    // return;
+
     $totalAmount =0;
     $post_arr=[];
     if($post->msg == "success_getCustomer"){
@@ -62,7 +61,7 @@ if ($post->msg == 'Successful') {
     }
    
 } else {
-    $validation->checkAuthentication();
+    $errorMessage->authenticationError();
 }
 
 
