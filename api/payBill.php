@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 
 
 //initializing our api
-include_once('../core/initialize.php');
+include_once($_SERVER['DOCUMENT_ROOT'] .'/VFTrackerBkashBillPayment/core/initialize.php');
 
 //initializing post
 $post = new Post($db);

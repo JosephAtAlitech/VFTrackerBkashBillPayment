@@ -5,15 +5,15 @@ $viewDir = '/api/';
 
 switch ($request) {
     case '':
-    case '/api/queryBill':
+    case '/VFTrackerBkashBillPayment/api/queryBill':
         require __DIR__ . $viewDir . 'queryBill.php';
         break;
 
-    case '/api/paybill':
+    case '/VFTrackerBkashBillPayment/api/paybill':
         require __DIR__ . $viewDir . 'paybill.php';
         break;
 
-    case '/api/searchTransaction':
+    case '/VFTrackerBkashBillPayment/api/searchTransaction':
         require __DIR__ . $viewDir . 'searchTransaction.php';
         break;
 

@@ -4,7 +4,7 @@ header('Allow-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 // header('Allow-Control-Allow-Method: GET');
 // header('Allow-Control-Allow-Headers: Access-Controll-Allow-Headers,Content-Type,Allow-Control-Allow-Method, Authorization,X-Requested-With');
-include_once('../core/initialize.php');
+include_once($_SERVER['DOCUMENT_ROOT'] .'/VFTrackerBkashBillPayment/core/initialize.php');
 
 $post = new Post($db);
 $errorMessage = new ErrorMessage();
